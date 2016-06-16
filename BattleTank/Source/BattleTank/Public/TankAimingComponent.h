@@ -5,10 +5,7 @@
 #include "Components/ActorComponent.h"
 #include "TankAimingComponent.generated.h"
 
-// In order to avoid creating a chain of header dependencies,
-// and because we don't actually need to call any of its methods,
-// we won't #include the tank barrel class
-// Forward declaration
+class UTankTurret;
 class UTankBarrel; 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -22,10 +19,16 @@ public:
 
 	void AimAt(FVector WorldSpaceAim, float LaunchSpeed);
 
+	void SetTurretReference(UTankTurret* TurretToSet);
+
 	void SetBarrelReference(UTankBarrel* BarrelToSet);
 
 private:
+	UTankTurret* Turret = nullptr;
+
 	UTankBarrel* Barrel = nullptr;
+
+	void MoveTurretTowards(FVector AimDirection);
 
 	void MoveBarrelTowards(FVector AimDirection);
 };
