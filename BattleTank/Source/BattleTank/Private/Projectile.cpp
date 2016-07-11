@@ -28,9 +28,9 @@ void AProjectile::Tick( float DeltaTime )
 
 }
 
-void AProjectile::Launch(float speed)
+void AProjectile::Launch(float Speed)
 {
-	ProjectileMovingComponent->SetVelocityInLocalSpace(FVector::ForwardVector * speed); // forward vector is a unit vector
+	ProjectileMovingComponent->SetVelocityInLocalSpace(FVector::ForwardVector * Speed); // forward vector is a unit vector
 	ProjectileMovingComponent->Activate();
 }
 
