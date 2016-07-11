@@ -8,6 +8,7 @@
 class UTankTurret;
 class UTankBarrel;
 class UTankAimingComponent;
+class UTankMovementComponent;
 class AProjectile;
 
 UCLASS()
@@ -29,6 +30,9 @@ public:
 
 protected:
 	UTankAimingComponent* TankAimingComponent = nullptr;
+
+	UPROPERTY(BlueprintReadOnly) // Allows the TankMovementComponent's methods to be found in blueprint
+	UTankMovementComponent* TankMovementComponent = nullptr;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Firing) // Prevent a property from being edited in separate instances
