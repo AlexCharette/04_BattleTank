@@ -1,20 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BattleTank.h"
-#include "Tank.h"
+#include "TankAimingComponent.h"
 #include "TankPlayerController.h"
 
 void ATankPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	ATank* ControlledTank = GetControlledTank();
-	if (ControlledTank)
+	TankAimingComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
+	if (ensure(TankAimingComponent))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Player controlled tank found: %s"), *ControlledTank->GetName());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Player controlled tank not found"));
+		FoundTankAimingComponent(TankAimingComponent);
 	}
 }
 
@@ -22,22 +18,23 @@ void ATankPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	AimTowardsCrosshair();
-}
+	auto ControlledTank = GetPawn();
 
-ATank* ATankPlayerController::GetControlledTank() const
-{
-	return	Cast<ATank>(GetPawn());
+	if (!ensure(ControlledTank)) { return; }
+
+	AimTowardsCrosshair();
 }
 
 void ATankPlayerController::AimTowardsCrosshair()
 {
-	if (!GetControlledTank()) { return; }
-
+	if (!ensure(GetPawn())) { return; }
+	TankAimingComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
+	if (!ensure(TankAimingComponent)) { return; }
 	FVector HitLocation; // Out parameter
-	if (GetSightRayHitLocation(HitLocation))
+	bool bGotHitLocation = GetSightRayHitLocation(HitLocation);
+	if (bGotHitLocation)
 	{
-	GetControlledTank()->AimAt(HitLocation);
+		TankAimingComponent->AimAt(HitLocation);
 	}
 }
 
@@ -56,10 +53,10 @@ bool ATankPlayerController::GetSightRayHitLocation(FVector& HitLocation) const
 	if (GetLookDirection(ScreenLocation, LookDirection))
 	{
 		// Line trace along that look direction
-		GetLookVectorHitLocation(LookDirection, HitLocation);
+		return GetLookVectorHitLocation(LookDirection, HitLocation);
 	}
 
-	return true;
+	return false;
 }
 
 bool ATankPlayerController::GetLookDirection(FVector2D ScreenLocation, FVector& LookDirection) const
@@ -87,7 +84,8 @@ bool ATankPlayerController::GetLookVectorHitLocation(FVector LookDirection, FVec
 		HitLocation = Hit.Location;
 		return true;
 	}
-		HitLocation = FVector(0.f);
-		return false;
+
+	HitLocation = FVector(0.f);
+	return false;
 }
 
