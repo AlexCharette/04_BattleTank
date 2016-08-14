@@ -8,7 +8,7 @@
 AProjectile::AProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	CollisionMesh = CreateDefaultSubobject<UStaticMeshComponent>(FName("Collision Mesh"));
 	SetRootComponent(CollisionMesh);
@@ -18,12 +18,17 @@ AProjectile::AProjectile()
 
 	LaunchBlast = CreateDefaultSubobject<UParticleSystemComponent>(FName("Launch Blast"));
 	// Attach it to the root component so that the mesh deposits smoke behind it
-	LaunchBlast->AttachTo(RootComponent);
+	LaunchBlast->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform); // TODO Update to new API
 
 	ProjectileMovingComponent = CreateDefaultSubobject<UProjectileMovementComponent>(FName("Moving Component"));
 	ProjectileMovingComponent->bAutoActivate = false;
 
-	
+	ImpactBlast = CreateDefaultSubobject<UParticleSystemComponent>(FName("Impact Blast"));
+	ImpactBlast->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	ImpactBlast->bAutoActivate = false;
+
+	ExplosionForce = CreateDefaultSubobject<URadialForceComponent>(FName("Explosion Force"));
+	ExplosionForce->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 // Called when the game starts or when spawned
@@ -31,18 +36,19 @@ void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
-}
-
-// Called every frame
-void AProjectile::Tick( float DeltaTime )
-{
-	Super::Tick( DeltaTime );
-
+	CollisionMesh->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
 }
 
 void AProjectile::Launch(float Speed)
 {
 	ProjectileMovingComponent->SetVelocityInLocalSpace(FVector::ForwardVector * Speed); // forward vector is a unit vector
 	ProjectileMovingComponent->Activate();
+}
+
+void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+{
+	LaunchBlast->Deactivate();
+	ImpactBlast->Activate();
+	ExplosionForce->FireImpulse();
 }
 
