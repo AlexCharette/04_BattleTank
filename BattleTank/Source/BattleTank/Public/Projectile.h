@@ -20,6 +20,9 @@ public:
 	void Launch(float Speed);
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	float DestroyDelay = 10;
+
 	UProjectileMovementComponent* ProjectileMovingComponent = nullptr;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
@@ -37,5 +40,7 @@ private:
 	// Called when the projectile hits something
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
+
+	void OnTimerExpire();
 	
 };
