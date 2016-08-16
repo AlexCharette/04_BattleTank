@@ -29,6 +29,12 @@ protected:
 	void FoundTankAimingComponent(UTankAimingComponent* AimCompRef);
 
 private:
+	UPROPERTY(EditDefaultsOnly)
+	float CrosshairXLocation = 0.5, CrosshairYLocation = 0.3333;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 LineTraceRange = 1000000; // calculated in CMs
+
 	void AimTowardsCrosshair();
 
 	bool GetSightRayHitLocation(FVector& HitLocation) const; 
@@ -37,9 +43,9 @@ private:
 
 	bool GetLookVectorHitLocation(FVector LookDirection, FVector& HitLocation) const;
 
-	UPROPERTY(EditDefaultsOnly)
-	float CrosshairXLocation = 0.5, CrosshairYLocation = 0.3333;
+	virtual void SetPawn(APawn* InPawn) override;
 
-	UPROPERTY(EditDefaultsOnly)
-	int32 LineTraceRange = 1000000; // calculated in CMs
+	UFUNCTION()
+	void OnPossessedTankDeath();
+
 };
