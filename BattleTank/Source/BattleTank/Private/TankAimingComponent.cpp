@@ -105,8 +105,8 @@ void UTankAimingComponent::Fire()
 {
 	if (FiringState == EFiringState::Aiming || FiringState == EFiringState::Locked)
 	{
-		if (!ensure(Barrel)) { return; }
-		if (!ensure(ProjectileBlueprint)) { return; }
+		if (!Barrel) { return; }
+		if (!ProjectileBlueprint) { return; }
 		// Spawn a projectile at the socket location
 		auto Projectile = GetWorld()->SpawnActor<AProjectile>(
 			ProjectileBlueprint,
